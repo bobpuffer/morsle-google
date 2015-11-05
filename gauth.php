@@ -4,7 +4,7 @@
         global $CFG;
         include_once "$CFG->dirroot/google/google-api-php-client/examples/templates/base.php";
 
-        require_once "$CFG->dirroot/google/google-api-php-client/autoload.php";
+        require_once "$CFG->dirroot/lib/google/autoload.php";
 
         $client->setApplicationName("Service_account");
 
