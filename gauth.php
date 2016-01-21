@@ -1,17 +1,26 @@
 <?php
 
-    function service_account(&$client, $useremail, $service = 'https://www.googleapis.com/auth/drive', $client_id = '1016393342084-dqql4goj9s0l402sbf4dtnoq2tsk0hp8.apps.googleusercontent.com', $service_account_name = '1016393342084-dqql4goj9s0l402sbf4dtnoq2tsk0hp8@developer.gserviceaccount.com') {
+    function service_account(&$client, $useremail = 'admin-moogle@luther.edu', $service = 'https://www.googleapis.com/auth/drive', $client_id = '1016393342084-dqql4goj9s0l402sbf4dtnoq2tsk0hp8.apps.googleusercontent.com', $service_account_name = '1016393342084-dqql4goj9s0l402sbf4dtnoq2tsk0hp8@developer.gserviceaccount.com') {
         global $CFG;
         include_once "$CFG->dirroot/google/google-api-php-client/examples/templates/base.php";
 
-        require_once "$CFG->dirroot/lib/google/autoload.php";
+        require_once "$CFG->dirroot/google/google-api-php-client/autoload.php";
+
+        //$key_file_location = "$CFG->dirroot/google/key.p12"; //key.p12
+	   $key_file_location = $CFG->dirroot.'/google/key.p12';
+        if ($client_id == '<YOUR_CLIENT_ID>'
+            || !strlen($service_account_name)
+            || !strlen($key_file_location)) {
+          echo missingServiceAccountDetailsWarning();
+        }
 
         $client->setApplicationName("Service_account");
 
         if (isset($_SESSION['service_token'])) {
             unset($_SESSION['service_token']);
+//          $client->setAccessToken($_SESSION['service_token']);
         }
-        $key_file_location = $CFG->dirroot.'/google/key.p12';
+//        $client->getAuth()->revokeToken($client->auth->token);
         $key = file_get_contents($key_file_location);
         $cred = new Google_Auth_AssertionCredentials(
             $service_account_name,
@@ -29,6 +38,27 @@
         return json_decode($client->getAccessToken());
 
     }
+    // still used?    
+    function caloauth($http_method, $basefeed, $accesstoken, $postdata = null) {
+            $authheader = "Authorization: OAuth " . $accesstoken;
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $basefeed);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            if ($http_method == 'POST') {
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array($authheader, 'Content-Type: application/json'));
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+            } else { // delete
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header, 'Content-Type: application/json'));
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
+            }
+
+            $jsonreturn = curl_exec($ch);
+
+            return json_decode($jsonreturn);
+        } // ends else from <all authenticated>
+//    }
     /**
    * Uses two-legged OAuth to respond to a Google documents list API request
    * @param string $base_feed Full URL of the resource to access
@@ -46,6 +76,7 @@
         require_once($CFG->dirroot . '/repository/morsle/lib.php'); // for morsle_decode
         require_once($CFG->dirroot . '/google/oauth.php');
         // Establish an OAuth consumer based on our admin 'credentials'
+
         if ( !$CONSUMER_KEY = get_config('morsle','consumer_key')) {
             return NULL;
         }
@@ -53,6 +84,7 @@
         if( !$CONSUMER_SECRET = get_config('morsle','oauthsecretstr') ) {
             return NULL;
         }
+
         $CONSUMER_SECRET = morsle_decode($CONSUMER_SECRET);
         $consumer = new OAuthConsumer($CONSUMER_KEY, $CONSUMER_SECRET, NULL);
         // Create an Atom entry
