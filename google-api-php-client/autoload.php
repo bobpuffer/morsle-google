@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-function google_api_php_client_autoload($className) {
+function morsle_google_api_php_client_autoload($className) {
   $classPath = explode('_', $className);
   if ($classPath[0] != 'Google') {
     return;
@@ -30,4 +30,4 @@ function google_api_php_client_autoload($className) {
   }
 }
 
-spl_autoload_register('google_api_php_client_autoload');
+spl_autoload_register('morsle_google_api_php_client_autoload');
