@@ -108,13 +108,60 @@ function get_doc_feed($morsle, $collectionid, $max = 1000) {
     $searchtime = time() - (60*60*24*365*2);
     $date = new DateTime(date('y-m-d', $searchtime));
     $formatdate = $date->format("Y-m-d\TH:i:sP");
+
     $files = $resource->listFiles(array("q" => "'$collectionid' in parents and trashed = false and modifiedDate > '$formatdate'", 'maxResults' => $max));
     $titles = array();
     foreach ($files->items as $item) {
         $titles[s($item['title'])] = $item;
     }
     return $titles;
-}        
+}
+
+function get_doc_feed_by_id($morsle, $id, $collectionid = null, $max = 1000) {
+    $drive = new Google_Service_Drive($morsle->client);
+    $resource = $drive->files;
+    $searchtime = time() - (60*60*24*365*2);
+    $date = new DateTime(date('y-m-d', $searchtime));
+    $formatdate = $date->format("Y-m-d\TH:i:sP");
+    $files = $resource->listFiles(array("q" => "'$id' in parents and '$collectionid' in parents and trashed = false and modifiedDate > '$formatdate'", 'maxResults' => $max));
+    $titles = array();
+    foreach ($files->items as $item) {
+        $titles[s($item['title'])] = $item;
+    }
+    return $titles;
+}
+
+
+function get_doc_feed_by_name($morsle, $name, $collectionid, $max = 1000) {
+    $drive = new Google_Service_Drive($morsle->client);
+    $resource = $drive->files;
+    $searchtime = time() - (60*60*24*365*2);
+    $date = new DateTime(date('y-m-d', $searchtime));
+    $formatdate = $date->format("Y-m-d\TH:i:sP");
+    $files = $resource->listFiles(array("q" => "'name' = '$name' and '$collectionid' in parents and trashed = false and modifiedDate > '$formatdate'", 'maxResults' => $max));
+    $titles = array();
+    foreach ($files->items as $item) {
+        $titles[s($item['title'])] = $item;
+    }
+    return $titles;
+}
+
+/**
+ * Retrieve a list of custom file properties.
+ *
+ * @param Google_Service_Drive $service Drive API service instance.
+ * @param String $fileId ID of the file to retrieve properties for.
+ * @return Array List of custom properties.
+ */
+function retrieve_properties($service, $fileid) {
+    try {
+        $properties = $service->properties->listProperties($fileid);
+        return $properties->getItems();
+    } catch (Exception $e) {
+        print "An error occurred: " . $e->getMessage();
+    }
+    return NULL;
+}
 
 function get_doc_id($link) {
     $split = explode('/', $link);

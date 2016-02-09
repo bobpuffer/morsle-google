@@ -76,7 +76,6 @@
         require_once($CFG->dirroot . '/repository/morsle/lib.php'); // for morsle_decode
         require_once($CFG->dirroot . '/google/oauth.php');
         // Establish an OAuth consumer based on our admin 'credentials'
-
         if ( !$CONSUMER_KEY = get_config('morsle','consumer_key')) {
             return NULL;
         }
@@ -84,7 +83,6 @@
         if( !$CONSUMER_SECRET = get_config('morsle','oauthsecretstr') ) {
             return NULL;
         }
-
         $CONSUMER_SECRET = morsle_decode($CONSUMER_SECRET);
         $consumer = new OAuthConsumer($CONSUMER_KEY, $CONSUMER_SECRET, NULL);
         // Create an Atom entry
